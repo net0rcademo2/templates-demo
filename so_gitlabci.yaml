@@ -1,0 +1,34 @@
+stages:
+  - validate
+  - submit
+
+image: python:3.10-buster
+before_script:
+  - pip install -q --upgrade pip
+  - pip install -q netorca-sdk
+
+validate:
+  stage: validate
+  variables:
+    NETORCA_VALIDATE_ONLY: "True"
+  script:
+    - wget -q 'https://netautomate.gitlab.io/netorca_tools/cicd/latest/serviceowner_submission.py'
+    - python serviceowner_submission.py
+  working-directory: ${{ github.workspace }}
+  rules:
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+
+submit:
+  stage: submit
+  variables:
+    NETORCA_VALIDATE_ONLY: "False"
+  script:
+    - wget -q 'https://netautomate.gitlab.io/netorca_tools/cicd/latest/serviceowner_submission.py'
+    - python serviceowner_submission.py
+  working-directory: ${{ github.workspace }}
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+include:
+  - template: 'Workflows/MergeRequest-Pipelines.gitlab-ci.yml'
+

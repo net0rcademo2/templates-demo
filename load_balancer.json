@@ -1,0 +1,30 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/service.schema.json",
+    "title": "load_balancer",
+    "description": "New load balancer on F5 BigIP",
+    "type": "object",
+    "metadata": {
+        "monthly_cost": 100,
+        "cost_per_change": 500
+    },
+    "properties": {
+        "name": {
+            "type": "string",
+            "pattern": "^([a-z]{1}[a-z0-9-]{1,60})(-dev|-sit|-uat|-nft|-qa|-prod)$",
+            "examples": [
+                "test-application-dev",
+                "test-application-uat"
+            ]
+        },
+        "target_ips": {
+            "type": "array",
+            "description": "Target server ip addresses",
+            "examples": ["132.16.23.12", "132.16.23.17"]
+        }
+    },
+    "required": [
+        "name",
+        "target_ips"
+    ]
+}

@@ -1,0 +1,65 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install netorca-sdk
+      - name: show dir
+        run: ls -l
+        working-directory: ${{ github.workspace }}
+      - name: Validate
+        run: |
+          wget -q 'https://netautomate.gitlab.io/netorca_tools/cicd/latest/consumer_submission.py'
+          python consumer_submission.py
+        env:
+          NETORCA_VALIDATE_ONLY: "True"
+          NETORCA_API_KEY: ${{ secrets.NETORCA_API_KEY }}
+        working-directory: ${{ github.workspace }}
+      
+  submit:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install netorca-sdk
+
+      - name: Submit
+        run: |
+          wget -q 'https://netautomate.gitlab.io/netorca_tools/cicd/latest/consumer_submission.py'
+          python consumer_submission.py
+        env:
+          NETORCA_VALIDATE_ONLY: "False"
+          NETORCA_API_KEY: ${{ secrets.NETORCA_API_KEY }}
+        working-directory: ${{ github.workspace }}
+
+
+
+    if: github.ref == 'refs/heads/main'
